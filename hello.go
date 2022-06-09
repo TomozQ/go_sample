@@ -1,27 +1,23 @@
 package main
 
-import (
-	"fmt"
-	"hello"
-	"strconv"
-)
+import "fmt"
 
 func main() {
-	x := hello.Input("type a number")
-	fmt.Print(x + "月は、")
-	switch n, err := strconv.Atoi(x); n {
-	case 0:
-		fmt.Println("整数値が得られません")
-		fmt.Println(err)
-	case 1, 2, 12:
-		fmt.Println("冬です")
-	case 3, 4, 5:
-		fmt.Println("春です")
-	case 6, 7, 8:
-		fmt.Println("夏です")
-	case 9, 10, 11:
-		fmt.Println("秋です")
+	x := 2
+	switch x {
+	case f(1):
+		fmt.Println("* first case")
+	case f(2):
+		fmt.Println("* second case")
+	case f(3):
+		fmt.Println("* third case")
 	default:
-		fmt.Println("月の値ではありません。")
+		fmt.Println("* default case")
 	}
+}
+
+func f(n int) int {
+	// Printlnは型の異なる値を複数の引数として指定し、出力することができる。
+	fmt.Println("No, ", n)
+	return n
 }
