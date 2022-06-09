@@ -1,23 +1,23 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"hello"
+	"strconv"
+)
 
 func main() {
-	x := 2
-	switch x {
-	case f(1):
-		fmt.Println("* first case")
-	case f(2):
-		fmt.Println("* second case")
-	case f(3):
-		fmt.Println("* third case")
-	default:
-		fmt.Println("* default case")
+	x := hello.Input("type a nubmer")
+	n, err := strconv.Atoi(x)
+	if err == nil {
+		fmt.Print(x + "は、")
+	} else {
+		return
 	}
-}
-
-func f(n int) int {
-	// Printlnは型の異なる値を複数の引数として指定し、出力することができる。
-	fmt.Println("No, ", n)
-	return n
+	switch {
+	case n%2 == 0:
+		fmt.Println("偶数です。")
+	case n%2 == 1:
+		fmt.Println("奇数です。")
+	}
 }
