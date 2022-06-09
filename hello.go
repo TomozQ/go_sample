@@ -8,26 +8,20 @@ import (
 
 func main() {
 	x := hello.Input("type a number")
-	// n, err := strconv.Atoi(x)
-
-	// ifに入るとまずn, err := strconv.Atoi(x)が実行される。errがnilの場合には偶数奇数の判定に入る。
-	if n, err := strconv.Atoi(x); err == nil {
-		if n%2 == 0 {
-			fmt.Println("偶数です。")
-		} else {
-			fmt.Println("奇数です。")
-		}
-	} else {
-		fmt.Println("整数ではありません。")
+	fmt.Print(x + "月は、")
+	switch n, err := strconv.Atoi(x); n {
+	case 0:
+		fmt.Println("整数値が得られません")
+		fmt.Println(err)
+	case 1, 2, 12:
+		fmt.Println("冬です")
+	case 3, 4, 5:
+		fmt.Println("春です")
+	case 6, 7, 8:
+		fmt.Println("夏です")
+	case 9, 10, 11:
+		fmt.Println("秋です")
+	default:
+		fmt.Println("月の値ではありません。")
 	}
-	// if err != nil {
-	// 	fmt.Println("ERROR!!")
-	// 	return
-	// }
-	// fmt.Print(x + "は、")
-	// if n%2 == 0 {
-	// 	fmt.Println("偶数です")
-	// } else {
-	// 	fmt.Println("奇数です")
-	// }
 }
