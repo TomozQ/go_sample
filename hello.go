@@ -7,24 +7,18 @@ import (
 )
 
 func main() {
+	t := 0
 	x := hello.Input("type a number")
 	n, err := strconv.Atoi(x)
-	if err == nil {
-		fmt.Print("1から" + x + "の合計は、")
-	} else {
-		return
+	if err != nil {
+		goto err //errラベルの処理にジャンプする
 	}
-	t := 0
-	c := 0
-	for {
-		c++
-		if c%2 == 1 {
-			continue
-		}
-		if c > n {
-			break
-		}
-		t += c
+	for i := 1; i <= n; i++ {
+		t += i
 	}
-	fmt.Println(t, "です。")
+	fmt.Println("total: ", t)
+	return
+
+err: //ラベル
+	fmt.Println("ERROR!")
 }
