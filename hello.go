@@ -11,4 +11,11 @@ func main() {
 	// 変数 := []型{値1, 値2 ...}
 	fmt.Println(a)
 	fmt.Println(b)
+	a[0] = 100
+	fmt.Println(a)
+	fmt.Println(b)
+	b[1] = 200
+	fmt.Println(a)
+	fmt.Println(b)
+	// aとbは同じ値を参照している
 }
