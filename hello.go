@@ -3,15 +3,18 @@ package main
 import "fmt"
 
 func main() {
-	m := []string{"one", "two", "three"}
+	f := func(a []string) ([]string, string) {
+		return a[1:], a[0]
+	}
+	m := []string{
+		"one",
+		"two",
+		"three",
+	}
+	s := ""
 	fmt.Println(m)
-	m = push(m, "1", "2", "3")
-	fmt.Println(m)
-}
-
-//						可変長引数
-func push(a []string, v ...string) (s []string) {
-	//			v... -> 配列vを展開したもの
-	s = append(a, v...)
-	return
+	for len(m) > 0 {
+		m, s = f(m)
+		fmt.Println(s+" ->", m)
+	}
 }
