@@ -3,16 +3,18 @@ package main
 import "fmt"
 
 func main() {
-	m := map[string]int{
-		"a": 100,
-		"b": 200,
-		"c": 300,
-	}
-	// m["total"] = m["a"] + m["b"] + m["c"]
-	// fmt.Println(m)
-
-	// マップは順番が保証されない。
-	for k, v := range m {
-		fmt.Println(k+":", v)
-	}
+	m := []string{}
+	m, _ = push(m, "apple")
+	m, _ = push(m, "banana")
+	m, _ = push(m, "orange")
+	fmt.Println(m)
+	m, v := pop(m)
+	fmt.Println("get "+v+" ->", m)
+}
+func push(a []string, v string) ([]string, int) {
+	return append(a, v), len(a)
+}
+func pop(a []string) ([]string, string) {
+	fmt.Println(len(a) - 1)
+	return a[:len(a)-1], a[len(a)-1]
 }
