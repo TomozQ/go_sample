@@ -3,27 +3,29 @@ package main
 import "fmt"
 
 func main() {
-	//第一引数にstringのスライス、第二引数に関数を取る。戻り値はstringスライス。 ->第一引数で受けたスライスを第二引数の関数で処理して返却する。
-	modify := func(a []string, f func([]string) []string) []string {
-		return f(a)
-	}
+	data := "*新しい値*"
+	m1 := modify(data)
+	data = "+new data+"
+	m2 := modify(data)
+
+	fmt.Println(m1())
+	fmt.Println(m2())
+}
+func modify(d string) func() []string {
 	m := []string{
 		"1st",
 		"2nd",
-		"3rd",
 	}
-	fmt.Println("initial", m)
-
-	m1 := modify(m, func([]string) []string {
-		return append(m, m...)
-	})
-	fmt.Println("m1", m1)
-	m2 := modify(m, func([]string) []string {
-		return m[:len(m)-1]
-	})
-	fmt.Println("m2", m2)
-	m3 := modify(m, func([]string) []string {
-		return m[1:]
-	})
-	fmt.Println("m3", m3)
+	return func() []string {
+		return append(m, d)
+	}
 }
+
+// 出力
+// [1st 2nd *新しい値*]
+// [1st 2nd +new data+]
+// m1とm2にはmodifyの戻り値である関数が代入される
+// その後m1,m2が実行された際には、modifyが実行された際のm,dの値が保持されている。
+// ^
+// |
+// クロージャ―
