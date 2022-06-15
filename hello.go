@@ -7,16 +7,20 @@ type Mydata struct {
 	Data []int
 }
 
+//	md(Mydata)の部分をレシーバーと呼ぶ
+func (md Mydata) PrintData() {
+	fmt.Println("*** Mydata ***")
+	fmt.Println("Name: ", md.Name)
+	fmt.Println("Data: ", md.Data)
+	fmt.Println("*** end ***")
+}
 func main() {
-	taro := new(Mydata)
-	fmt.Println(taro)
-	taro.Name = "Taro"
-	// 要素5つのスライスを初期化
-	taro.Data = make([]int, 5, 5)
-	fmt.Println(taro)
+	taro := Mydata{"Hanako", []int{98, 76, 54, 32, 10}}
+	taro.PrintData()
 }
 
 // 出力
-// どちらにも&がついていることからtaroはポインタだとわかる
-// &{ []}
-// &{Taro [0 0 0 0 0]}
+// *** Mydata ***
+// Name:  Hanako
+// Data:  [98 76 54 32 10]
+// *** end ***
