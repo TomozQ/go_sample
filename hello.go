@@ -12,12 +12,16 @@ func main() {
 		"Taro",
 		[]int{10, 20, 30},
 	}
-
-	hanako := Mydata{
-		Name: "Hanako",
-		Data: []int{90, 80, 70},
-	}
-
 	fmt.Println(taro)
-	fmt.Println(hanako)
+	rev(&taro)
+	fmt.Println(taro)
+}
+
+func rev(md *Mydata) {
+	od := md.Data
+	nd := []int{}
+	for i := len(od) - 1; i >= 0; i-- {
+		nd = append(nd, od[i])
+	}
+	md.Data = nd
 }
