@@ -8,20 +8,15 @@ type Mydata struct {
 }
 
 func main() {
-	taro := Mydata{
-		"Taro",
-		[]int{10, 20, 30},
-	}
+	taro := new(Mydata)
 	fmt.Println(taro)
-	rev(&taro)
+	taro.Name = "Taro"
+	// 要素5つのスライスを初期化
+	taro.Data = make([]int, 5, 5)
 	fmt.Println(taro)
 }
 
-func rev(md *Mydata) {
-	od := md.Data
-	nd := []int{}
-	for i := len(od) - 1; i >= 0; i-- {
-		nd = append(nd, od[i])
-	}
-	md.Data = nd
-}
+// 出力
+// どちらにも&がついていることからtaroはポインタだとわかる
+// &{ []}
+// &{Taro [0 0 0 0 0]}
