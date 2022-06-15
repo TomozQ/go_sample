@@ -14,8 +14,8 @@ func main() {
 	}
 
 	hanako := Mydata{
-		"Hanako",
-		[]int{90, 80, 70},
+		Name: "Hanako",
+		Data: []int{90, 80, 70},
 	}
 
 	fmt.Println(taro)
