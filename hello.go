@@ -18,6 +18,7 @@ func (num intp) IsPrime() bool {
 	}
 	return true
 }
+
 func (num intp) PrimeFactor() []int {
 	ar := []int{}
 	x := int(num)
@@ -38,10 +39,21 @@ func (num intp) PrimeFactor() []int {
 	return ar
 }
 
+func (num *intp) doPrime() {
+	pf := num.PrimeFactor() //numはポインタなので本来（*num）.PrimeFactorと指定して呼びださなくてはならないが、ポインタからのメソッド呼び出しはポインタから直接呼びだせるようになっている。
+	*num = intp(pf[len(pf)-1])
+}
+
 func main() {
 	s := hello.Input("type a number")
 	n, _ := strconv.Atoi(s)
 	x := intp(n)
+	fmt.Printf("%d [%t].\n", x, x.IsPrime())
+	fmt.Println(x.PrimeFactor())
+	x.doPrime()
+	fmt.Printf("%d [%t].\n", x, x.IsPrime())
+	fmt.Println(x.PrimeFactor())
+	x++
 	fmt.Printf("%d [%t].\n", x, x.IsPrime())
 	fmt.Println(x.PrimeFactor())
 }
