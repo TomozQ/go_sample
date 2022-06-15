@@ -2,19 +2,21 @@ package main
 
 import "fmt"
 
+var mydata struct {
+	Name string
+	Data []int
+}
+
 func main() {
-	ar := []int{10, 20, 30}
-	fmt.Println(ar)
-	initial(&ar)
-	fmt.Println(ar)
-}
+	//構造体
+	// struct{
+	// 	...変数宣言...
+	// }
 
-func initial(ar *[]int) {
-	for i := 0; i < len(*ar); i++ {
-		(*ar)[i] = 0 //(*ar) -> arのポインタにあるスライスを取得できる。※*ar[i]だとar[i]にあるポインタを取得しようとしていると判断される。
-	}
+	// 変数を指定した定義の構造体の値として宣言できる。
+	// var 変数 struct{......}
+	// 利用する際には 構造体.変数
+	mydata.Name = "Taro"
+	mydata.Data = []int{10, 20, 30}
+	fmt.Println(mydata)
 }
-
-// 出力
-// [10 20 30]
-// [0 0 0]
