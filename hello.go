@@ -1,69 +1,79 @@
 package main
 
-import "fmt"
-
-//interface
-// type 名前 interface {
-// 	メソッドA
-// 	メソッドB
-// 	...必要なだけ用意...
-// }
+import (
+	"fmt"
+	"strconv"
+	"strings"
+)
 
 //Data is interface
 type Data interface {
-	Initial(name string, data []int)
+	SetValue(vals map[string]string)
 	PrintData()
 }
 
-//Mydata is struct
+//Mydata is structure
 type Mydata struct {
 	Name string
 	Data []int
 }
 
-//Initial is init method
-func (md *Mydata) Initial(name string, data []int) {
-	md.Name = name
-	md.Data = data
+// SetValue is Mydata method
+func (md *Mydata) SetValue(vals map[string]string) {
+	md.Name = vals["name"]
+	valt := strings.Split(vals["data"], " ")
+	vali := []int{}
+	for _, i := range valt {
+		n, _ := strconv.Atoi(i)
+		vali = append(vali, n)
+	}
+	md.Data = vali
 }
 
-//PrintData is println all data
+//PrintData is Mydata method
 func (md *Mydata) PrintData() {
 	fmt.Println("Name: ", md.Name)
 	fmt.Println("Data: ", md.Data)
 }
 
-//Check is method
-func (md *Mydata) Chack() {
-	fmt.Printf("Check! [%s]", md.Name)
+//Yourdata is structure
+type Yourdata struct {
+	Name string
+	Mail string
+	Age  int
+}
+
+// SetValue is Mydata method
+func (md *Yourdata) SetValue(vals map[string]string) {
+	md.Name = vals["name"]
+	md.Mail = vals["mail"]
+	n, _ := strconv.Atoi(vals["age"])
+	md.Age = n
+}
+
+//PrintData is Yourdata method
+func (md *Yourdata) PrintData() {
+	fmt.Printf("I'm %s. (%d).\n", md.Name, md.Age)
+	fmt.Printf("mail: %s.\n", md.Mail)
 }
 
 func main() {
-	var ob Mydata = Mydata{}
-	// new関数は特定の型の値を作成するものではない。代入する変数の型に合わせて値は扱われる。
-	// var ob Data = new(Mydata) //この場合はData型の変数が定義されているのでここにnewで代入した値はData型となる。
-	ob.Initial("Sachiko", []int{55, 66, 77})
-	ob.PrintData()
-	ob.Chack()
+	ob := [2]Data{}
+	ob[0] = new(Mydata)
+	ob[0].SetValue(map[string]string{
+		"name": "Sachiko",
+		"data": "55, 66, 77",
+	})
+	ob[1] = new(Yourdata)
+	ob[1].SetValue(map[string]string{
+		"name": "Mami",
+		"mail": "mami@mume.mo",
+		"age":  "34",
+	})
+	for _, d := range ob {
+		d.PrintData()
+		fmt.Println()
+	}
 }
 
-//インターフェースは直接値を作成することはできない → Data()やData{}はできない
-
-// いずれもobに代入されているのはMydataでCheck関数を使用できそうだが、「実際に何が入っているか」よりも「その型は何なのか」ということによって用意されているメソッドを認識している。
-//「インターフェイス型として変数を用意する場合は、その値はインターフェイスに用意された機能しか使えない。」
-// ⇓
-// 下記は実行できる
-// func main() {
-// 	var ob Mydata = Mydata{} //←この部分
-// 	ob.Initial("Sachiko", []int{55, 66, 77})
-// 	ob.PrintData()
-// 	ob.Chack()
-// }
-
-// 下記は実行できない
-// func main() {
-// 	var ob Data = new(Mydata) //←この部分
-// 	ob.Initial("Sachiko", []int{55, 66, 77})
-// 	ob.PrintData()
-// 	ob.Chack()
-// }
+//同じインターフェイスを実装する際、メソッドの引数や戻り値まで完全に一致していなければいけない。
