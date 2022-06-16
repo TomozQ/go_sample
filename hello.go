@@ -1,59 +1,69 @@
 package main
 
-import (
-	"fmt"
-	"hello"
-	"strconv"
-)
+import "fmt"
 
-type intp int
+//interface
+// type 名前 interface {
+// 	メソッドA
+// 	メソッドB
+// 	...必要なだけ用意...
+// }
 
-func (num intp) IsPrime() bool {
-	n := int(num)
-	for i := 2; i <= (n / 2); i++ {
-		if n%i == 0 {
-			return false
-		}
-
-	}
-	return true
+//Data is interface
+type Data interface {
+	Initial(name string, data []int)
+	PrintData()
 }
 
-func (num intp) PrimeFactor() []int {
-	ar := []int{}
-	x := int(num)
-	n := 2
-	for x > n {
-		if x%n == 0 {
-			x /= n
-			ar = append(ar, n)
-		} else {
-			if n == 2 {
-				n++
-			} else {
-				n += 2
-			}
-		}
-	}
-	ar = append(ar, x)
-	return ar
+//Mydata is struct
+type Mydata struct {
+	Name string
+	Data []int
 }
 
-func (num *intp) doPrime() {
-	pf := num.PrimeFactor() //numはポインタなので本来（*num）.PrimeFactorと指定して呼びださなくてはならないが、ポインタからのメソッド呼び出しはポインタから直接呼びだせるようになっている。
-	*num = intp(pf[len(pf)-1])
+//Initial is init method
+func (md *Mydata) Initial(name string, data []int) {
+	md.Name = name
+	md.Data = data
+}
+
+//PrintData is println all data
+func (md *Mydata) PrintData() {
+	fmt.Println("Name: ", md.Name)
+	fmt.Println("Data: ", md.Data)
+}
+
+//Check is method
+func (md *Mydata) Chack() {
+	fmt.Printf("Check! [%s]", md.Name)
 }
 
 func main() {
-	s := hello.Input("type a number")
-	n, _ := strconv.Atoi(s)
-	x := intp(n)
-	fmt.Printf("%d [%t].\n", x, x.IsPrime())
-	fmt.Println(x.PrimeFactor())
-	x.doPrime()
-	fmt.Printf("%d [%t].\n", x, x.IsPrime())
-	fmt.Println(x.PrimeFactor())
-	x++
-	fmt.Printf("%d [%t].\n", x, x.IsPrime())
-	fmt.Println(x.PrimeFactor())
+	var ob Mydata = Mydata{}
+	// new関数は特定の型の値を作成するものではない。代入する変数の型に合わせて値は扱われる。
+	// var ob Data = new(Mydata) //この場合はData型の変数が定義されているのでここにnewで代入した値はData型となる。
+	ob.Initial("Sachiko", []int{55, 66, 77})
+	ob.PrintData()
+	ob.Chack()
 }
+
+//インターフェースは直接値を作成することはできない → Data()やData{}はできない
+
+// いずれもobに代入されているのはMydataでCheck関数を使用できそうだが、「実際に何が入っているか」よりも「その型は何なのか」ということによって用意されているメソッドを認識している。
+//「インターフェイス型として変数を用意する場合は、その値はインターフェイスに用意された機能しか使えない。」
+// ⇓
+// 下記は実行できる
+// func main() {
+// 	var ob Mydata = Mydata{} //←この部分
+// 	ob.Initial("Sachiko", []int{55, 66, 77})
+// 	ob.PrintData()
+// 	ob.Chack()
+// }
+
+// 下記は実行できない
+// func main() {
+// 	var ob Data = new(Mydata) //←この部分
+// 	ob.Initial("Sachiko", []int{55, 66, 77})
+// 	ob.PrintData()
+// 	ob.Chack()
+// }
