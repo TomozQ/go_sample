@@ -3,70 +3,62 @@ package main
 import (
 	"fmt"
 	"time"
+	"sync"
+	"strconv"
 )
 
-// select{
-// case 文:
-// 	...実行する処理...
-// case 文:
-// 	...実行する処理...
-// case 文:
-// 	...実行する処理...
-// default:
-// 	...全てに当てはまらない場合の処理...
-// }
-
-// switchと違いcaseには値ではなく操作の文を指定する。基本的には「<-チャンネル」という形でチャンネルから値を取り出す文を記述しておく。（チャンネルから値を取り出せたcaseに進む）
-
-func count (n int, s int, c chan int) {
-	for i := 1; i <= n; i++ {
-		c <- i
-		time.Sleep(time.Duration(s) * time.Millisecond)
-	}
+// SrData is structure
+type SrData struct {
+	msg string
+	mux sync.Mutex
 }
 
 func main() {
-	n1, n2, n3 := 3, 5, 10
-	m1, m2, m3 := 100, 75, 50
-	c1 := make(chan int)
-	go count(n1, m1, c1)
-	c2 := make(chan int)
-	go count(n2, m2, c2)
-	c3 := make(chan int)
-	go count(n3, m3, c3)
-
-	for i := 0; i < n1 + n2 + n3; i++ {
-		select{
-		case re := <- c1:
-			fmt.Println("*  first", re)
-		
-		case re := <- c2:
-			fmt.Println("** second", re)
-		
-		case re := <- c3:
-			fmt.Println("***third", re)
-		}
+	sd := SrData{msg: "Start"}
+	prmsg := func(nm string, n int){
+		fmt.Println(nm, sd.msg)
+		time.Sleep(time.Duration(n) * time.Millisecond)
 	}
-	fmt.Println("*** finish. ***")
+
+	main := func(n int){
+		const nm string = "*main"
+		sd.mux.Lock() //☆
+		for i := 0; i < 5; i++{
+			sd.msg += " m" + strconv.Itoa(i)
+			prmsg(nm, 100)
+		}
+		sd.mux.Unlock() //☆
+	}
+
+	hello := func(n int){
+		const nm string = "hello"
+		sd.mux.Lock() //☆
+		for i := 0; i < 5; i++ {
+			sd.msg += " h" + strconv.Itoa(i)
+			prmsg(nm, n)
+		}
+		sd.mux.Unlock() //☆
+	}
+
+	go main(100)
+	go hello(50)
+	time.Sleep(5 * time.Second)
 }
 
 // 出力
-// ***third 1
-// ** second 1
-// *  first 1
-// ***third 2
-// ** second 2
-// ***third 3
-// *  first 2
-// ***third 4
-// ** second 3
-// ***third 5
-// *  first 3
-// ** second 4
-// ***third 6
-// ***third 7
-// ** second 5
-// ***third 8
-// ***third 9
-// ***third 10
-// *** finish. ***
+// hello Start h0
+// hello Start h0 h1
+// hello Start h0 h1 h2
+// hello Start h0 h1 h2 h3
+// hello Start h0 h1 h2 h3 h4
+// *main Start h0 h1 h2 h3 h4 m0
+// *main Start h0 h1 h2 h3 h4 m0 m1
+// *main Start h0 h1 h2 h3 h4 m0 m1 m2
+// *main Start h0 h1 h2 h3 h4 m0 m1 m2 m3
+// *main Start h0 h1 h2 h3 h4 m0 m1 m2 m3 m4
+
+// sd.mux.Lock() -> 他スレッドがsdにアクセスできなくなる。他スレッドはこの処理がアンロックされるまで待ち続けることになる。
+// スレッドをロックするとアンロックされるまでの間、他スレッドはpending状態となる。
+
+// 別スレッドで実行している処理を全てロックしてしまうと結局閉校処理ではなく「複数のスレッドが順に実行される」という逐次処理になってしまう。
+// せっかくの並行処理の利点が失われてしまうから、ロックは「この処理だけは外部からアクセスされては困る」という必要最低限の範囲に絞って行うようにする。
