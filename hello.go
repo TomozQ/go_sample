@@ -2,55 +2,30 @@ package main
 
 import (
 	"fmt"
-	"strconv"
-	"time"
 )
 
-func prmsg(n int, s string){
-	fmt.Println(s)
-	time.Sleep(time.Duration(n) * time.Millisecond)
-}
-
-func first(n int, c chan string){
-	const nm string = "first"
-	for i := 0; i < 10; i++{
-		s := nm + strconv.Itoa(i)
-		prmsg(n, s)
-		c <- s
+func total (cs chan int, cr chan int) {
+	n := <- cs
+	fmt.Println("n = ", n)
+	t := 0
+	for i := 1; i <= n; i++ {
+		t += i
 	}
-}
-
-func second(n int, c chan string){
-	for i := 0; i < 10; i++{
-		prmsg(n, "second:["+ <-c +"]")
-	}
+	cr <- t
 }
 
 func main() {
-	c := make(chan string)
-	go first(10, c)
-	second(10, c)
-	fmt.Println()
+	cs := make(chan int)
+	cr := make(chan int)
+	go total(cs, cr)
+	cs <- 100
+	fmt.Println("total: ", <-cr)
 }
 
 // 出力
-// first0
-// first1
-// second:[first0]
-// first2
-// second:[first1]
-// first3
-// second:[first2]
-// first4
-// second:[first3]
-// first5
-// second:[first4]
-// first6
-// second:[first5]
-// first7
-// second:[first6]
-// first8
-// second:[first7]
-// first9
-// second:[first8]
-// second:[first9]
+// n =  100
+// total:  5050
+
+// csを「main -> total」
+// crを「total -> main」
+// というように2つのチャンネルで双方向に値を送受している。 
