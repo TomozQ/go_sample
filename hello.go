@@ -2,60 +2,27 @@ package main
 
 import(
 	"fmt"
-	"time"
-	"strconv"
 )
 
-func hello(s string, n int){
-	for i := 1; i <= 10; i++{
-		fmt.Printf("<%d %s>", i, s)
-		time.Sleep(time.Duration(n) * time.Millisecond)
-	}
+func total(n int, c chan int){
+	t := 0
+	for i := 1; i <= n; i++{
+		t += i
+	} 
+	// チャンネルに t を格納する
+	c <- t
 }
 
 func main() {
-	msg := "start"
-	prmsg := func(nm string, n int){
-		fmt.Println(nm, msg)
-		time.Sleep(time.Duration(n) * time.Millisecond)
-	}
-
-	hello := func(n int){
-		const nm string = "hello"
-		for i := 0; i < 10; i++{
-			msg += " h" + strconv.Itoa(i)
-			prmsg(nm, n)
-		}
-	}
-
-	main := func(n int){
-		const nm string = "*main"
-		for i := 0; i < 5; i++{
-			msg += " m" + strconv.Itoa(i)
-			prmsg(nm, 100)
-		}
-	}
-
-	go hello(60)
-	main(100)
+	// int型を格納するチャンネルを生成
+	c := make(chan int)
+	// total関数を並列処理で実行
+	go total(100, c)
+	// c(チャンネル)から値を取り出して出力
+	fmt.Println("total: ", <-c)
 }
 
-//出力
-// *main start m0
-// hello start m0 h0
-// hello start m0 h0 h1
-// *main start m0 h0 h1 m1
-// hello start m0 h0 h1 m1 h2
-// hello start m0 h0 h1 m1 h2 h3
-// *main start m0 h0 h1 m1 h2 h3 m2
-// hello start m0 h0 h1 m1 h2 h3 m2 h4
-// hello start m0 h0 h1 m1 h2 h3 m2 h4 h5
-// *main start m0 h0 h1 m1 h2 h3 m2 h4 h5 m3
-// hello start m0 h0 h1 m1 h2 h3 m2 h4 h5 m3 h6
-// *main start m0 h0 h1 m1 h2 h3 m2 h4 h5 m3 h6 m4
-// hello start m0 h0 h1 m1 h2 h3 m2 h4 h5 m3 h6 m4 h7
-// hello start m0 h0 h1 m1 h2 h3 m2 h4 h5 m3 h6 m4 h7 h8
-
-// hello関数内のループはh0 ~ h9の10回繰り返されるはずだがh9が出力されていない。
-// →10回呼ばれる前にメインスレッドの処理が終了している。
-// メインスレッドが終了すると、それ以外のその他のスレッドは処理中であっても全て消えてしまう。
+// 出力
+// total:  5050
+// チャンネルから値を取得する場合、その値が送られてくるまで処理を待つ
+// 今回の場合total関数でチャンネルに値が追加されるまではmain関数のfmt.Printlnは実行されない。
