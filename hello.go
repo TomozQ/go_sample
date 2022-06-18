@@ -2,22 +2,55 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 )
 
-func total(c chan int){
-	n := <-c  // チャンネルは、値がまだ用意されていない場合には、送られてくるまで処理を待つ。 -> 値が得られないというエラーになることはない。
-	fmt.Println("n = ", n)
-	t := 0
-	for i := 1; i <= n; i++ {
-		t += i
+func prmsg(n int, s string){
+	fmt.Println(s)
+	time.Sleep(time.Duration(n) * time.Millisecond)
+}
+
+func first(n int, c chan string){
+	const nm string = "first"
+	for i := 0; i < 10; i++{
+		s := nm + strconv.Itoa(i)
+		prmsg(n, s)
+		c <- s
 	}
-	fmt.Println("total: ", t)
+}
+
+func second(n int, c chan string){
+	for i := 0; i < 10; i++{
+		prmsg(n, "second:["+ <-c +"]")
+	}
 }
 
 func main() {
-	c := make(chan int)
-	go total(c)
-	c <- 100 // チャンネルは複数のスレッド間で値をやり取りするためのものなので、双方で準備ができていないとならない => Goルーチンを実行した後でないとチャンネルは使えない。
-	time.Sleep(100 * time.Millisecond)
+	c := make(chan string)
+	go first(10, c)
+	second(10, c)
+	fmt.Println()
 }
+
+// 出力
+// first0
+// first1
+// second:[first0]
+// first2
+// second:[first1]
+// first3
+// second:[first2]
+// first4
+// second:[first3]
+// first5
+// second:[first4]
+// first6
+// second:[first5]
+// first7
+// second:[first6]
+// first8
+// second:[first7]
+// first9
+// second:[first8]
+// second:[first9]
