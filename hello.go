@@ -2,66 +2,63 @@ package main
 
 import (
 	"fmt"
-	"reflect"
+	"time"
+	"sync"
+	"strconv"
 )
 
-// General is all type data
-type General interface{}
-
-// GData is holding General value
-type GData interface {
-	Set(nm string, g General) GData
-	Print()
-}
-
-// NData is structure
-type NData struct {
-	Name string
-	Data []int
-}
-
-// Set is NData method
-func (nd *NData) Set(nm string, g General) GData {
-	nd.Name = nm
-	if reflect.TypeOf(g) == reflect.SliceOf(reflect.TypeOf(0)){ //reflect.TypeOf(0) -> int型
-		nd.Data = g.([]int) //型アサーション
-	}
-	return nd
-}
-
-// Print is NData method
-func (nd *NData)Print(){
-	fmt.Printf("<<%s>> value: %d\n", nd.Name, nd.Data)
-}
-
-// SData is structure
-type SData struct {
-	Name string
-	Data []string
-}
-
-// Set is SData method
-func (sd *SData) Set(nm string, g General) GData {
-	sd.Name = nm
-	if reflect.TypeOf(g) == reflect.SliceOf(reflect.TypeOf("")){ // reflect.TypeOf("") -> string型
-		sd.Data = g.([]string) //型アサーション
-	}
-	return sd
-}
-
-// Print is SData method
-func (sd *SData)Print(){
-	fmt.Printf("* %s [%s] *\n", sd.Name, sd.Data)
+// SrData is structure
+type SrData struct {
+	msg string
+	mux sync.Mutex
 }
 
 func main() {
-	var data = []GData{}
-	data = append(data, new(NData).Set("Taro", []int{1, 2, 3}))
-	data = append(data, new(SData).Set("Jiro", []string{"hello", "bye"}))
-	data = append(data, new(NData).Set("Hanako", 98700))
-	data = append(data, new(SData).Set("Sachiko", "happy?"))
-
-	for _, ob := range data{
-		ob.Print()
+	sd := SrData{msg: "Start"}
+	prmsg := func(nm string, n int){
+		fmt.Println(nm, sd.msg)
+		time.Sleep(time.Duration(n) * time.Millisecond)
 	}
+
+	main := func(n int){
+		const nm string = "*main"
+		sd.mux.Lock() //☆
+		for i := 0; i < 5; i++{
+			sd.msg += " m" + strconv.Itoa(i)
+			prmsg(nm, 100)
+		}
+		sd.mux.Unlock() //☆
+	}
+
+	hello := func(n int){
+		const nm string = "hello"
+		sd.mux.Lock() //☆
+		for i := 0; i < 5; i++ {
+			sd.msg += " h" + strconv.Itoa(i)
+			prmsg(nm, n)
+		}
+		sd.mux.Unlock() //☆
+	}
+
+	go main(100)
+	go hello(50)
+	time.Sleep(5 * time.Second)
 }
+
+// 出力
+// hello Start h0
+// hello Start h0 h1
+// hello Start h0 h1 h2
+// hello Start h0 h1 h2 h3
+// hello Start h0 h1 h2 h3 h4
+// *main Start h0 h1 h2 h3 h4 m0
+// *main Start h0 h1 h2 h3 h4 m0 m1
+// *main Start h0 h1 h2 h3 h4 m0 m1 m2
+// *main Start h0 h1 h2 h3 h4 m0 m1 m2 m3
+// *main Start h0 h1 h2 h3 h4 m0 m1 m2 m3 m4
+
+// sd.mux.Lock() -> 他スレッドがsdにアクセスできなくなる。他スレッドはこの処理がアンロックされるまで待ち続けることになる。
+// スレッドをロックするとアンロックされるまでの間、他スレッドはpending状態となる。
+
+// 別スレッドで実行している処理を全てロックしてしまうと結局閉校処理ではなく「複数のスレッドが順に実行される」という逐次処理になってしまう。
+// せっかくの並行処理の利点が失われてしまうから、ロックは「この処理だけは外部からアクセスされては困る」という必要最低限の範囲に絞って行うようにする。
